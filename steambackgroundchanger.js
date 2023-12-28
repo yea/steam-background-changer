@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         steambackgroundchanger
-// @namespace    https://github.com/yea
+// @namespace    https://github.com/yea/steam-background-changer
 // @version      1.0
 // @description  easily preview steam backgrounds on any profile, including yours or anyone else's, before purchasing
 // @author       neversince
