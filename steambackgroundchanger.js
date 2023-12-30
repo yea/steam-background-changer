@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         steambackgroundchanger
 // @namespace    https://github.com/yea/steam-background-changer
-// @version      1.1
+// @version      1.2
 // @description  easily preview steam backgrounds on any profile, including yours or anyone else's, before purchasing
 // @author       neversince
 // @match        https://steamcommunity.com/id/*
@@ -12,6 +12,15 @@
 
 (function() {
     'use strict';
+
+    const ANIMATED_CLASS = 'profile_animated_background';
+    const STATIC_CLASS = 'no_header profile_page ';
+
+    const FILE_EXTENSIONS = {
+        WEBM: 'webm',
+        MP4: 'mp4',
+        JPG: 'jpg',
+    };
 
     var existingElement = document.querySelector('.responsive_status_info');
 
@@ -35,38 +44,37 @@
         }
 
         function doesClassExist(className) {
-            var elementsWithClass = document.getElementsByClassName(className);
-            return elementsWithClass.length > 0;
+            return document.getElementsByClassName(className).length > 0;
         }
 
         function getCurrentBackgroundType() {
-            if (doesClassExist('profile_animated_background')) {
+            if (doesClassExist(ANIMATED_CLASS)) {
                 return 'animated';
-            } else if (doesClassExist('no_header profile_page ')) {
-                var elementsWithClass = document.getElementsByClassName('no_header profile_page ');
+            } 
+            
+            var elementsWithClass = document.getElementsByClassName(STATIC_CLASS);
 
+            if (elementsWithClass.length > 0) {
                 if (elementsWithClass[0].style.cssText.trim() !== '') {
                     return 'static';
                 } else {
                     return 'none';
                 }
-            } else {
-                return 'none';
             }
-            
+
+            return 'none';
         }
 
         function handleStaticBackround(inputValue, currentBackgroundType) {
             if (currentBackgroundType == 'animated') {
-                var elementsToRemove = document.getElementsByClassName('profile_animated_background');
+                var elementsToRemove = document.getElementsByClassName(ANIMATED_CLASS);
                 elementsToRemove[0].remove();
             }
 
-            var elementsWithClass = document.getElementsByClassName('no_header profile_page ');
+            var elementsWithClass = document.getElementsByClassName(STATIC_CLASS);
 
             if (elementsWithClass.length > 0) {
-                elementsWithClass[0].classList.add('has_profile_background');
-                elementsWithClass[0].classList.add('full_width_background');
+                elementsWithClass[0].classList.add('has_profile_background', 'full_width_background');
                 elementsWithClass[0].style.backgroundImage = `url( '${inputValue}' )`;
             }
         }
@@ -76,11 +84,10 @@
                 var targetElement = document.querySelector('.no_header.profile_page');
 
                 if (targetElement) {
-                    targetElement.classList.add('has_profile_background');
-                    targetElement.classList.add('full_width_background');
+                    targetElement.classList.add('has_profile_background', 'full_width_background');
 
                     var animatedBackgroundDiv = document.createElement('div');
-                    animatedBackgroundDiv.classList.add('profile_animated_background');
+                    animatedBackgroundDiv.classList.add(ANIMATED_CLASS);
 
                     var videoElement = document.createElement('video');
                     videoElement.setAttribute('playsinline', '');
@@ -101,7 +108,7 @@
                     targetElement.insertBefore(animatedBackgroundDiv, targetElement.firstChild);
                 }
             } else {
-                var elementsWithClass = document.getElementsByClassName('profile_animated_background');
+                var elementsWithClass = document.getElementsByClassName(ANIMATED_CLASS);
 
                 if (elementsWithClass.length > 0) {
                     var videos = document.querySelectorAll('video');
@@ -124,9 +131,9 @@
 
             var currentBackgroundType = getCurrentBackgroundType();
 
-            if (hasFileExtension(inputValue, 'webm') == true || hasFileExtension(inputValue, 'mp4') == true) {
+            if (hasFileExtension(inputValue, FILE_EXTENSIONS.WEBM) || hasFileExtension(inputValue, FILE_EXTENSIONS.MP4)) {
                 handleAnimatedBackround(inputValue, currentBackgroundType);
-            } else if (hasFileExtension(inputValue, 'jpg') == true) {
+            } else if (hasFileExtension(inputValue, FILE_EXTENSIONS.JPG)) {
                 handleStaticBackround(inputValue, currentBackgroundType);
             }
 
